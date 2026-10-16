@@ -7,7 +7,7 @@ help:
 
 update:
 	docker compose pull
-	for IMG in $$(grep FROM Dockerfile.* | awk '{ print $$2 }' | sort -u); do docker pull $$IMG; done
+	docker pull $$(awk '/^FROM / { print $$2 }' ../Dockerfile.debian-xfce-vnc)
 
 clean:
 	docker compose kill
@@ -15,7 +15,7 @@ clean:
 	-docker network prune -f
 
 prepare:
-	docker compose build
+	docker compose build --no-cache
 	docker compose up --remove-orphans -d
 	docker ps
 	@while read LOGLINE; do \

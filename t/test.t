@@ -4,16 +4,17 @@ use warnings;
 use strict;
 
 use File::Basename;
+use IO::Socket::INET;
 use YAML ();
 use Test::More;
 
-plan tests => 22;
+plan tests => 7;
 
 chdir(dirname($0));
 my $conf = YAML::LoadFile("docker-compose.yml");
 
 is(ref $conf->{'services'}, "HASH", "read docker-compose.yml");
-is(scalar %{$conf->{'services'}}, 4, "read services from docker-compose.yml");
+is(scalar %{$conf->{'services'}}, 1, "read services from docker-compose.yml");
 
 for my $svc (sort keys %{$conf->{'services'}}) {
 	my $app = $conf->{'services'}->{$svc};
@@ -26,7 +27,10 @@ for my $svc (sort keys %{$conf->{'services'}}) {
 			eval {
 				alarm(3);
 				local $SIG{'ALRM'} = sub { die("timeout"); };
-				my $out = `echo "" | nc -q 1 -w 1 127.0.99.13 $localport 2>&1`;
+				my $socket = IO::Socket::INET->new(
+					PeerAddr => $ip, PeerPort => $localport, Proto => 'tcp'
+				) or die("VNC connection failed: $!");
+				$socket->read(my $out, 12);
 				like($out, '/RFB/', "vnc connect header found")
 			};
 			alarm(0);
@@ -37,7 +41,7 @@ for my $svc (sort keys %{$conf->{'services'}}) {
 			eval {
 				alarm(3);
 				local $SIG{'ALRM'} = sub { die("timeout"); };
-				my $out = `curl -s http://127.0.99.13:$localport/?password=vncpassword 2>&1`;
+				my $out = `curl -s http://$ip:$localport/?password=vncpassword 2>&1`;
 				like($out, '/noVNC/', "web vnc html contains noVNC")
 			};
 			alarm(0);

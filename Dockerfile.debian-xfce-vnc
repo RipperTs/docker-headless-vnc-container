@@ -5,7 +5,7 @@ FROM debian:12
 LABEL maintainer="Sven Nierlein sven@consol.de"
 ENV REFRESHED_AT=2024-08-28
 
-LABEL io.k8s.description="Headless VNC Container with Xfce window manager, firefox and chromium" \
+LABEL io.k8s.description="Headless VNC Container with Xfce window manager, Firefox and Google Chrome" \
       io.k8s.display-name="Headless VNC Container based on Debian" \
       io.openshift.expose-services="6901:http,5901:xvnc" \
       io.openshift.tags="vnc, debian, xfce" \
@@ -58,7 +58,9 @@ ADD ./src/common/xfce/ $HOME/
 ### configure startup
 RUN $INST_SCRIPTS/libnss_wrapper.sh
 ADD ./src/common/scripts $STARTUPDIR
-RUN $INST_SCRIPTS/set_user_permission.sh $STARTUPDIR $HOME
+RUN ln -sfn "$STARTUPDIR/google-chrome.sh" /usr/bin/google-chrome-stable \
+    && cp /usr/share/applications/google-chrome.desktop "$HOME/Desktop/" \
+    && $INST_SCRIPTS/set_user_permission.sh $STARTUPDIR $HOME
 
 USER 1000
 
