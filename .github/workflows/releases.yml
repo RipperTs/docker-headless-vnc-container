@@ -35,8 +35,6 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Log in to Docker Hub
@@ -51,4 +49,4 @@ jobs:
           file: Dockerfile.debian-xfce-vnc
           tags: wslmf/debian-xfce-vnc:latest
           no-cache: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64

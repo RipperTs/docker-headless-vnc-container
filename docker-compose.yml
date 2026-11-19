@@ -1,0 +1,17 @@
+services:
+  debian-xfce-vnc:
+    image: wslmf/debian-xfce-vnc:latest
+    # Chrome 按主机名锁定资料目录，固定主机名避免重建容器后资料被判定为占用
+    hostname: debian-xfce-vnc
+    restart: always
+    ports:
+      - "6901:6901"
+    environment:
+      VNC_PW: ${VNC_PW}
+    volumes:
+      - firefox-data:/headless/.mozilla
+      - chrome-data:/headless/.config/google-chrome
+
+volumes:
+  firefox-data:
+  chrome-data:
